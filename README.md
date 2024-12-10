@@ -1,2 +1,2 @@
-# movie_finder
+# Lookup
 app for finding movies/films/anime/manga
