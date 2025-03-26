@@ -11,7 +11,7 @@ import java.util.List;
 
 public class MangaSearch {
 
-    public void searchManga(boolean includeNSFW, String type) {
+    public void searchManga(boolean includeNSFW, String type, Integer limit) {
         String query = "SELECT * FROM manga WHERE 1=1";
         if (!includeNSFW) {
             query += " AND nsfw = 0";
@@ -19,12 +19,16 @@ public class MangaSearch {
         if (!type.isEmpty()) {
             query += " AND type = ?";
         }
+        if (limit != null && limit > 0) {
+            query += " LIMIT " + limit;
+        }
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
+            int paramIndex = 1;
             if (!type.isEmpty()) {
-                statement.setString(1, type);
+                statement.setString(paramIndex++, type);
             }
 
             ResultSet resultSet = statement.executeQuery();
@@ -37,7 +41,6 @@ public class MangaSearch {
                 int opinion = resultSet.getInt("opinion");
                 String mangaType = resultSet.getString("type");
 
-                // Create a Manga object and add to list
                 mangaList.add(new Manga(id, name, mangaType, nsfw, opinion));
             }
 
@@ -46,7 +49,6 @@ public class MangaSearch {
                 return;
             }
 
-            // Use polymorphism to display details
             for (Media manga : mangaList) {
                 manga.displayDetails();
             }
